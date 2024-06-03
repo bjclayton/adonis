@@ -43,10 +43,9 @@ export default class AuthController {
             return response.status(200).json(token);
         } catch (error) {
             response
-                .status(500)
+                .status(error.status)
                 .json({
-                    message: "Something went wrong.",
-                    error: error
+                    message: error.name,
                 });
         }
     }
