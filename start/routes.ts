@@ -8,10 +8,8 @@
 */
 
 import router from '@adonisjs/core/services/router'
-import { middleware } from './kernel.js'
 const AuthController = () => import('#controllers/auth_controller')
-
-router.get('health', ({ response }) => response.noContent())
+const BooksController = () => import('#controllers/books_controller')
 
 router
   .group(() => {
@@ -23,7 +21,6 @@ router
       .prefix('auth')
 
     router
-      .get('/test', () => { return "Protected!" })
-      .use(middleware.auth())
+      .resource('books', BooksController)
   })
   .prefix('api')
