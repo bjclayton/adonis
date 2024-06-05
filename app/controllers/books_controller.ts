@@ -5,6 +5,7 @@ import { updateBookValidator } from '#validators/update_book';
 import { cuid } from '@adonisjs/core/helpers';
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app';
+import mail from '@adonisjs/mail/services/main';
 
 export default class BooksController {
   /**
@@ -48,6 +49,15 @@ export default class BooksController {
       })
 
       await book.related('categories').attach(payload.categories)
+
+      await mail.sendLater((message) => {
+        message
+          .to(auth.user!.email)
+          .from('jclaytonblanc.dev@gmail.com')
+          .subject('Thanks for adding a new book!')
+          .attach(app.makePath(`uploads/${book.cover}`))
+          .htmlView('email/create_book')
+      })
 
       return response
         .status(201)
