@@ -1,4 +1,5 @@
 import Book from '#models/book'
+import BookPolicy from '#policies/book_policy';
 import { createBookValidator } from '#validators/create_book';
 import { updateBookValidator } from '#validators/update_book';
 import { cuid } from '@adonisjs/core/helpers';
@@ -84,10 +85,14 @@ export default class BooksController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ auth, params, request, response }: HttpContext) {
+  async update({ bouncer, auth, params, request, response }: HttpContext) {
     try {
       const payload = await request.validateUsing(updateBookValidator)
       const book = await Book.findOrFail(params.id)
+
+      if (await bouncer.with(BookPolicy).denies('edit', book)) {
+        return response.forbidden('Cannot edit the book')
+      }
 
       if (payload.cover) {
         await payload.cover?.move(app.makePath('uploads'), {
@@ -122,9 +127,13 @@ export default class BooksController {
   /**
    * Delete record
    */
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ bouncer, params, response }: HttpContext) {
     try {
       const book = await Book.findOrFail(params.id);
+
+      if (await bouncer.with(BookPolicy).denies('delete', book)) {
+        return response.forbidden('Cannot delete the book')
+      }
 
       await book.related('categories').detach()
       await book.delete();
