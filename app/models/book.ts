@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, computed, manyToMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Category from './category.js'
@@ -13,6 +13,11 @@ export default class Book extends BaseModel {
 
   @column()
   declare cover: string
+
+  @computed()
+  public get coverPath() {
+    return `/uploads/${this.cover}`
+  }
 
   @column()
   declare author: string
